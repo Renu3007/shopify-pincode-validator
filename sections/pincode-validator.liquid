@@ -10,30 +10,42 @@
 }
 {% endschema %}
 
-<div class="pincode-validator">
-    <input type="text" id="pincode-input" placeholder="Enter your pincode" />
-    <button id="check-pincode">Check Availability</button>
-    <p id="pincode-result"></p>
+<!-- Pincode Validator Section -->
+<div id="pincode-validator" style="padding: 20px; border: 1px solid #ddd; border-radius: 8px; max-width: 400px;">
+  <input type="text" id="pincodeInput" placeholder="Enter your pincode" style="width: 70%; padding: 10px; margin-right: 10px;">
+  <button onclick="checkPincode()" style="padding: 10px 15px;">Check Availability</button>
+  <p id="pincodeMessage" style="margin-top: 10px;"></p>
 </div>
 
+<script>
+  async function checkPincode() {
+    const pincode = document.getElementById('pincodeInput').value.trim();
+    const messageEl = document.getElementById('pincodeMessage');
 
-<style>
-.pincode-validator {
-    margin-top: 20px;
-}
-#pincode-input {
-    padding: 8px;
-    width: 200px;
-}
-#check-pincode {
-    padding: 8px 12px;
-    background-color: #eb2244;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-}
-#pincode-result {
-    margin-top: 10px;
-    font-weight: bold;
-}
-</style>
+    if (!pincode) {
+      messageEl.textContent = 'Please enter a pincode';
+      messageEl.style.color = 'red';
+      return;
+    }
+
+    messageEl.textContent = 'Checking...';
+    messageEl.style.color = 'black';
+
+    try {
+      const response = await fetch(`https://script.google.com/macros/s/AKfycbzxblaYpS43Xzkb4EJJRExFlJhg1aCEHl7GEtJYdzkeNnd_5h1zX4K29T0eDNLAd5kXHg/exec?pincode=${pincode}`);
+      const data = await response.json();
+
+      if (data.status === 'success' && data.available) {
+        messageEl.textContent = 'Delivery Available';
+        messageEl.style.color = 'green';
+      } else {
+        messageEl.textContent = 'Delivery Not Available';
+        messageEl.style.color = 'red';
+      }
+    } catch (error) {
+      console.error('Error checking pincode:', error);
+      messageEl.textContent = 'Something went wrong. Please try again.';
+      messageEl.style.color = 'red';
+    }
+  }
+</script>
